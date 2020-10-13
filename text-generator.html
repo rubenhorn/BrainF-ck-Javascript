@@ -12,7 +12,7 @@
         <h1>Brainf*ck text generator</h1>
         <span>Text:</span>
         <textarea id="text" class="row"></textarea>
-        <input type="checkbox" id="commented"></input>
+        <input type="checkbox" id="commented" checked></input>
         <label for="commented">Include comments and formatting</label> <button id="generate">Generate</button>
         <br><br>
         <span>Program:</span>
@@ -38,7 +38,11 @@
                         if(i > 0) {
                             commentedProgram += '\n';
                         }
-                        commentedProgram += `"${ text.charAt(i) }": ${ lines[i] }.`;
+                        let plainChar = text.charAt(i);
+                        if('><+-[],.'.indexOf(plainChar) != -1) {
+                            plainChar = '\\u00' + 'plainChar'.charCodeAt(0).toString(16);
+                        }
+                        commentedProgram += `"${ plainChar }": ${ lines[i] }.`;
                     }
                     program = commentedProgram;
                 }

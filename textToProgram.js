@@ -26,17 +26,27 @@ export default function textToProgram(text) {
             throw new Error(`Character code of ${String.fromCharCode(nextChar)} cannot be expressed in 8 bits`);
         }
 
-        let difference = (nextChar - cellValue + 256) % 256;
-        let operation = '+';
-        let difference2 = (cellValue - nextChar + 256) % 256;
-        if(difference2 < difference) {
-            difference = difference2;
-            operation = '-';
+        const calculateDifferenceAndOperation = () => {
+            let difference;
+            let operation;
+            const fwdCost = (nextChar - cellValue + 256) % 256;
+            const bwdCost = (cellValue - nextChar + 256) % 256; 
+            if(fwdCost < bwdCost) {
+                difference = fwdCost;
+                operation = '+';
+            }
+            else {
+                difference = bwdCost;
+                operation = '-';
+            }
+            return [difference, operation];
         }
+
+        let [difference, operation] = calculateDifferenceAndOperation();
 
         if (difference == 0) { }
         else if (Math.abs(difference) < 10) {
-            const operation = nextChar > cellValue ? '+' : '-';
+            operation = nextChar > cellValue ? '+' : '-';
             for (let i = 0; i < Math.abs(difference); i++) {
                 program += operation;
             }
@@ -46,11 +56,10 @@ export default function textToProgram(text) {
             while (a == 1 || b == 1) {
                 cellValue = (cellValue + 1) % 256;
                 program += '+';
-                difference = (nextChar - cellValue + 256) % 256;
+                [difference, operation] = calculateDifferenceAndOperation();
                 [a, b] = findTwoFactors(Math.abs(difference));
             }
-
-            program += '>'
+            program += '>>';
             for (; a > 0; a--) {
                 program += '+';
             }
@@ -58,14 +67,8 @@ export default function textToProgram(text) {
             for (; b > 0; b--) {
                 program += '+';
             }
-            program += '>-]';
-
-            if (difference > 0) {
-                program += '[<<+>-]<';
-            }
-            else {
-                program += '[<<+>-]<';
-            }
+            program += '>-]<';
+            program += `[<${ operation }>-]<`;
         }
         cellValue = nextChar;
         program += '.';

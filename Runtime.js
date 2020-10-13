@@ -1,5 +1,5 @@
 export default function Runtime(cellcount) {
-    this.memory = new Int8Array(cellcount);
+    this.memory = new Uint8Array(cellcount);
 
     this.execute = async function(program, input, output) {
         this.memory.fill(0, 0);
