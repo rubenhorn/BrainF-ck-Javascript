@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .row {
+                margin-bottom: 10px;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Brainf*ck interpreter</h1>
+        <a href="./text-generator.html" target="_blank">Text generator</a>
+        <br><br>
+        <span>Program:</span>
+        <textarea id="program" class="row"></textarea>
+        <button id="execute" class="row">Execute</button>
+        <span>Output:</span>
+        <textarea disabled id="output" class="row"></textarea>
+        <span>Input:</span>
+        <input disabled id="input" class="row"></input>
+        <script type="module">
+            import Runtime from './Runtime.js';
+            const runtime = new Runtime(3000);
+
+            const programTextarea = document.getElementById('program');
+            const inputField = document.getElementById('input');
+            const outputTextarea = document.getElementById('output');
+
+            setInterval(() => {
+                programTextarea.style.width = '100%';
+                outputTextarea.style.width = '100%';
+            }, 100);
+
+            const output = function(value) {
+                outputTextarea.value = outputTextarea.value + value;
+            };
+
+            let inputBuffer = '';
+
+            inputField.addEventListener('keydown', (event) => {
+                if(event.key == 'Enter') {
+                    inputBuffer += inputField.length == 0 ? '\n' : inputField.value;
+                    inputField.value = '';
+                    inputField.disabled = true;
+                }
+            });
+
+            const input = async function() {
+                inputField.disabled = false;
+                while(inputBuffer.length == 0) {
+                    await new Promise((resolve) => {
+                        setTimeout(resolve, 100);
+                    });
+                }
+                const nextChar = inputBuffer.charCodeAt(0);
+                inputBuffer = inputBuffer.substr(1);
+                return nextChar;
+            };
+
+            document.getElementById('execute').addEventListener('click', (event) => {
+                const start = Date.now();
+                outputTextarea.value = '';
+                programTextarea.disabled = true;
+                execute.disabled = true;
+                runtime.execute(programTextarea.value, input, output)
+                    .then(() => {
+                        const secondsSinceStart = (Date.now() - start) / 1000;
+                        output(`\nProgram terminated after ${ secondsSinceStart } seconds`);
+                    })
+                    .catch((error) => {
+                        output(`\nRuntime error: ${ error.message }`);
+                    })
+                    .finally(() => {
+                        programTextarea.disabled = false;
+                        execute.disabled = false;
+                    });
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .row {
+                margin-bottom: 10px;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Brainf*ck text generator</h1>
+        <span>Text:</span>
+        <textarea id="text" class="row"></textarea>
+        <input type="checkbox" id="commented"></input>
+        <label for="commented">Include comments and formatting</label> <button id="generate">Generate</button>
+        <br><br>
+        <span>Program:</span>
+        <textarea id="program" class="row"></textarea>
+        <script type="module">
+            import textToProgram from './textToProgram.js';
+            const textTextarea = document.getElementById('text');
+            const programTextarea = document.getElementById('program');
+            const commented = document.getElementById('commented');
+            let program = '';
+            setInterval(() => {
+                programTextarea.value = program;
+                programTextarea.style.width = '100%';
+                textTextarea.style.width = '100%';
+            }, 100);
+            document.getElementById('generate').addEventListener('click', (event) => {
+                const text = textTextarea.value;
+                const newProgram = textToProgram(text);
+                if(commented.checked) {
+                    let lines = newProgram.split('.');
+                    let commentedProgram = '';
+                    for(let i = 0; i < lines.length - 1; i++) {
+                        if(i > 0) {
+                            commentedProgram += '\n';
+                        }
+                        commentedProgram += `"${ text.charAt(i) }": ${ lines[i] }.`;
+                    }
+                    program = commentedProgram;
+                }
+                else {
+                    program = newProgram;
+                }
+            });
+        </script>
+    </body>
+</html>
